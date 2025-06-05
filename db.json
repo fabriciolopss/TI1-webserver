@@ -1,167 +1,253 @@
 {
-  "default_trainings": {
-    "ids": [1, 2, 3]
-  },
-  "edited_trainings": [
+  "users": [
     {
       "id": 1,
-      "name": "Treino de inferiores",
-      "category": "Pernas",
-      "type": "Ficha iniciante",
-      "days": [
-        {
-          "id": 1,
-          "xp": 100,
-          "name": "Dia 1 - Gluteos e Posterior de Coxa",
-          "day": [
-            { "exercise": "Supino reto", "series": 4, "repetitions": "8-12" },
-            {
-              "exercise": "Supino inclinado",
-              "series": 4,
-              "repetitions": "8-12"
-            },
-            {
-              "exercise": "Supino transversal",
-              "series": 4,
-              "repetitions": "8-12"
-            }
+      "email": "test@gmail.com",
+      "password": "hashed_password_here",
+      "userData": {
+        "default_trainings": {
+          "ids": [
+            1,
+            2,
+            3
           ]
         },
-        {
-          "id": 2,
-          "xp": 150,
-          "name": "Dia 2 - Quadriceps e Panturrilha",
-          "day": [
-            { "exercise": "Supino reto", "series": 4, "repetitions": "8-12" },
-            {
-              "exercise": "Supino inclinado",
-              "series": 4,
-              "repetitions": "8-12"
+        "edited_trainings": [
+          {
+            "id": 1,
+            "name": "Treino de inferiores",
+            "category": "Pernas",
+            "type": "Ficha iniciante",
+            "days": [
+              {
+                "id": 1,
+                "xp": 100,
+                "name": "Dia 1 - Gluteos e Posterior de Coxa",
+                "day": [
+                  {
+                    "exercise": "Supino reto",
+                    "series": 4,
+                    "repetitions": "8-12"
+                  },
+                  {
+                    "exercise": "Supino inclinado",
+                    "series": 4,
+                    "repetitions": "8-12"
+                  },
+                  {
+                    "exercise": "Supino transversal",
+                    "series": 4,
+                    "repetitions": "8-12"
+                  }
+                ]
+              },
+              {
+                "id": 2,
+                "xp": 150,
+                "name": "Dia 2 - Quadriceps e Panturrilha",
+                "day": [
+                  {
+                    "exercise": "Supino reto",
+                    "series": 4,
+                    "repetitions": "8-12"
+                  },
+                  {
+                    "exercise": "Supino inclinado",
+                    "series": 4,
+                    "repetitions": "8-12"
+                  },
+                  {
+                    "exercise": "Supino transversal",
+                    "series": 4,
+                    "repetitions": "8-12"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": 2,
+            "name": "Treino de superiores",
+            "category": "Superiores",
+            "type": "Ficha intermediária",
+            "days": [
+              {
+                "id": 1,
+                "xp": 50,
+                "name": "Dia 1 - Costas",
+                "day": [
+                  {
+                    "exercise": "Supino reto",
+                    "series": 4,
+                    "repetitions": "8-12"
+                  },
+                  {
+                    "exercise": "Supino inclinado",
+                    "series": 4,
+                    "repetitions": "8-12"
+                  },
+                  {
+                    "exercise": "Supino transversal",
+                    "series": 4,
+                    "repetitions": "8-12"
+                  }
+                ]
+              },
+              {
+                "id": 2,
+                "xp": 75,
+                "name": "Dia 2 - Ombro",
+                "day": [
+                  {
+                    "exercise": "Supino reto",
+                    "series": 4,
+                    "repetitions": "8-12"
+                  },
+                  {
+                    "exercise": "Supino inclinado",
+                    "series": 4,
+                    "repetitions": "8-12"
+                  },
+                  {
+                    "exercise": "Supino transversal",
+                    "series": 4,
+                    "repetitions": "8-12"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "notifications": [
+          {
+            "dateTime": "2025-05-26T02:11:19.565Z",
+            "title": "Titulo",
+            "description": "Teste de descrição para a tarefa",
+            "type": "Creation"
+          },
+          {
+            "dateTime": "2025-05-09T00:00:00.000Z",
+            "title": "Notificacao1",
+            "description": "Teste de descrição para a tarefa",
+            "type": "Creation"
+          },
+          {
+            "dateTime": "2025-05-06T00:00:00.000Z",
+            "title": "Notificacao2",
+            "description": "Teste de descrição para a tarefa",
+            "type": "Creation"
+          },
+          {
+            "dateTime": "2025-05-06T00:00:00.000Z",
+            "title": "Notificacao3",
+            "description": "Teste de descrição para a tarefa",
+            "type": "Creation"
+          },
+          {
+            "dateTime": "2025-05-04T00:00:00.000Z",
+            "title": "Notificacao4",
+            "description": "Teste de descrição para a tarefa",
+            "type": "Creation"
+          }
+        ],
+        "profile": {
+          "metadados": {
+            "termos": true,
+            "data_cadastro": "2025-05-26T02:11:56.222Z",
+            "xp": 0,
+            "conquistas": []
+          },
+          "objetivos": {
+            "objetivo_principal": "Ganho de massa muscular",
+            "frequencia_semanal": "3-4 vezes",
+            "tipo_treino": "Musculação",
+            "experiencia_previa": "Iniciante"
+          },
+          "pessoal": {
+            "nome_completo": "Ana Maria",
+            "data_nascimento": "2003-10-01",
+            "genero": "Feminino",
+            "altura_cm": 160,
+            "peso_kg": 50,
+            "imc": "19.5",
+            "email": "test@gmail.com",
+            "telefone": "(99) 91234-6789"
+          }
+        },
+        "registered_trainings": [
+          {
+            "training_id": 1,
+            "date": "2025-05-03",
+            "day_index": 1,
+            "duration": {
+              "hours": 0,
+              "minutes": 30
             },
-            {
-              "exercise": "Supino transversal",
-              "series": 4,
-              "repetitions": "8-12"
-            }
-          ]
-        }
-      ]
+            "xpGain": 50
+          },
+          {
+            "training_id": 1,
+            "date": "2025-05-03",
+            "day_index": 2,
+            "duration": {
+              "hours": 1,
+              "minutes": 30
+            },
+            "xpGain": 100
+          }
+        ]
+      }
     },
     {
       "id": 2,
-      "name": "Treino de superiores",
-      "category": "Superiores",
-      "type": "Ficha intermediária",
-      "days": [
-        {
-          "id": 1,
-          "xp": 50,
-          "name": "Dia 1 - Costas",
-          "day": [
-            { "exercise": "Supino reto", "series": 4, "repetitions": "8-12" },
-            {
-              "exercise": "Supino inclinado",
-              "series": 4,
-              "repetitions": "8-12"
-            },
-            {
-              "exercise": "Supino transversal",
-              "series": 4,
-              "repetitions": "8-12"
-            }
-          ]
+      "email": "user@example.com",
+      "password": "$2b$10$XYrjedmTGRGaCzP9CRtQu.50NM4xywxL26d4USz.vQsUHbTMO2hTi",
+      "userData": {
+        "default_trainings": {
+          "ids": []
         },
-        {
-          "id": 2,
-          "xp": 75,
-          "name": "Dia 2 - Ombro",
-          "day": [
-            { "exercise": "Supino reto", "series": 4, "repetitions": "8-12" },
-            {
-              "exercise": "Supino inclinado",
-              "series": 4,
-              "repetitions": "8-12"
-            },
-            {
-              "exercise": "Supino transversal",
-              "series": 4,
-              "repetitions": "8-12"
-            }
-          ]
-        }
-      ]
-    }
-  ],
-  "notifications": [
-    {
-      "dateTime": "2025-05-26T02:11:19.565Z",
-      "title": "Titulo",
-      "description": "Teste de descrição para a tarefa",
-      "type": "Creation"
+        "edited_trainings": [],
+        "notifications": [],
+        "profile": {
+          "metadados": {
+            "termos": false,
+            "data_cadastro": "2025-06-05T18:39:14.125Z",
+            "xp": 0,
+            "conquistas": []
+          },
+          "objetivos": {},
+          "pessoal": {}
+        },
+        "registered_trainings": []
+      }
     },
     {
-      "dateTime": "2025-05-09T00:00:00.000Z",
-      "title": "Notificacao1",
-      "description": "Teste de descrição para a tarefa",
-      "type": "Creation"
+      "id": 3,
+      "email": "user@examplee.com",
+      "password": "$2b$10$z3bvDko1w9YgxG.1NUz0I.BiyPido2necl..Aj62NssV2vdFjg2W.",
+      "userData": {
+        "default_trainings": {
+          "ids": []
+        },
+        "edited_trainings": [],
+        "notifications": [],
+        "profile": {
+          "metadados": {
+            "termos": false,
+            "data_cadastro": "2025-06-05T18:41:42.727Z",
+            "xp": 0,
+            "conquistas": []
+          },
+          "objetivos": {},
+          "pessoal": {}
+        },
+        "registered_trainings": []
+      }
     },
     {
-      "dateTime": "2025-05-06T00:00:00.000Z",
-      "title": "Notificacao2",
-      "description": "Teste de descrição para a tarefa",
-      "type": "Creation"
-    },
-    {
-      "dateTime": "2025-05-06T00:00:00.000Z",
-      "title": "Notificacao3",
-      "description": "Teste de descrição para a tarefa",
-      "type": "Creation"
-    },
-    {
-      "dateTime": "2025-05-04T00:00:00.000Z",
-      "title": "Notificacao4",
-      "description": "Teste de descrição para a tarefa",
-      "type": "Creation"
-    }
-  ],
-  "profile": {
-    "metadados": {
-      "termos": true,
-      "data_cadastro": "2025-05-26T02:11:56.222Z",
-      "xp": 0,
-      "conquistas": []
-    },
-    "objetivos": {
-      "objetivo_principal": "Ganho de massa muscular",
-      "frequencia_semanal": "3-4 vezes",
-      "tipo_treino": "Musculação",
-      "experiencia_previa": "Iniciante"
-    },
-    "pessoal": {
-      "nome_completo": "Ana Maria",
-      "data_nascimento": "2003-10-01",
-      "genero": "Feminino",
-      "altura_cm": 160,
-      "peso_kg": 50,
-      "imc": "19.5",
-      "email": "test@gmail.com",
-      "telefone": "(99) 91234-6789"
-    }
-  },
-  "registered_trainings": [
-    {
-      "training_id": 1,
-      "date": "2025-05-03",
-      "day_index": 1,
-      "duration": { "hours": 0, "minutes": 30 },
-      "xpGain": 50
-    },
-    {
-      "training_id": 1,
-      "date": "2025-05-03",
-      "day_index": 2,
-      "duration": { "hours": 1, "minutes": 30 },
-      "xpGain": 100
+      "email": "user@examplee.com",
+      "password": "userpassword",
+      "id": 4
     }
   ]
 }
