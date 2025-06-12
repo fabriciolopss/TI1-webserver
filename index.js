@@ -9,6 +9,20 @@ const port = process.env.PORT || 8080; //  chose port from here like 8080, 3001
 // Chave secreta para assinar os tokens JWT
 const JWT_SECRET = "sua_chave_secreta_muito_segura";
 
+// Configuração do CORS
+server.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  
+  // Responde imediatamente para requisições OPTIONS (preflight)
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  
+  next();
+});
+
 // Middleware para processar JSON
 server.use(jsonServer.bodyParser);
 server.use(middlewares);
@@ -131,6 +145,7 @@ server.post("/login", async (req, res) => {
 // Get user data
 server.get("/users/:id/data", async (req, res) => {
   const userId = parseInt(req.params.id);
+  const db = router.db;
   const user = db.get("users").find({ id: userId }).value();
 
   if (!user) {
@@ -143,6 +158,7 @@ server.get("/users/:id/data", async (req, res) => {
 // Update user data
 server.patch("/users/:id/data", async (req, res) => {
   const userId = parseInt(req.params.id);
+  const db = router.db;
   const user = db.get("users").find({ id: userId }).value();
 
   if (!user) {
@@ -158,6 +174,7 @@ server.patch("/users/:id/data", async (req, res) => {
 // Add notification
 server.post("/users/:id/notifications", async (req, res) => {
   const userId = parseInt(req.params.id);
+  const db = router.db;
   const user = db.get("users").find({ id: userId }).value();
 
   if (!user) {
@@ -179,6 +196,7 @@ server.post("/users/:id/notifications", async (req, res) => {
 server.delete("/users/:id/notifications/:index", async (req, res) => {
   const userId = parseInt(req.params.id);
   const notificationIndex = parseInt(req.params.index);
+  const db = router.db;
   const user = db.get("users").find({ id: userId }).value();
 
   if (!user) {
@@ -194,6 +212,7 @@ server.delete("/users/:id/notifications/:index", async (req, res) => {
 // Register training
 server.post("/users/:id/trainings", async (req, res) => {
   const userId = parseInt(req.params.id);
+  const db = router.db;
   const user = db.get("users").find({ id: userId }).value();
 
   if (!user) {
