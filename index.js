@@ -27,28 +27,28 @@ async function verifyPassword(password, hash) {
 // Função para gerar token JWT
 function generateToken(user) {
   return jwt.sign(
-    { 
+    {
       userId: user.id,
-      email: user.email 
+      email: user.email,
     },
     JWT_SECRET,
-    { expiresIn: '24h' } // Token expira em 24 horas
+    { expiresIn: "24h" } // Token expira em 24 horas
   );
 }
 
 // Rota de registro de usuário
 server.post("/register", async (req, res) => {
   const { email, password } = req.body;
-  
+
   if (!email || !password) {
     return res.status(400).json({ error: "Email e senha são obrigatórios" });
   }
 
   const db = router.db;
   const users = db.get("users").value();
-  
+
   // Verifica se o email já está em uso
-  if (users.some(user => user.email === email)) {
+  if (users.some((user) => user.email === email)) {
     return res.status(400).json({ error: "Email já está em uso" });
   }
 
@@ -67,24 +67,24 @@ server.post("/register", async (req, res) => {
             termos: false,
             data_cadastro: new Date().toISOString(),
             xp: 0,
-            conquistas: []
+            conquistas: [],
           },
           objetivos: {},
-          pessoal: {}
+          pessoal: {},
         },
-        registered_trainings: []
-      }
+        registered_trainings: [],
+      },
     };
 
     db.get("users").push(newUser).write();
-    
+
     // Gera o token JWT para o novo usuário
     const token = generateToken(newUser);
-    
-    res.status(201).json({ 
-      message: "Usuário criado com sucesso", 
+
+    res.status(201).json({
+      message: "Usuário criado com sucesso",
       userId: newUser.id,
-      token 
+      token,
     });
   } catch (error) {
     res.status(500).json({ error: "Erro ao criar usuário" });
@@ -119,11 +119,96 @@ server.post("/login", async (req, res) => {
     const { password: _, ...userWithoutPassword } = user;
     res.json({
       user: userWithoutPassword,
-      token
+      token,
     });
   } catch (error) {
     res.status(500).json({ error: "Erro ao fazer login" });
   }
+});
+
+// New endpoints to add to the webserver
+
+// Get user data
+server.get("/users/:id/data", async (req, res) => {
+  const userId = parseInt(req.params.id);
+  const user = db.get("users").find({ id: userId }).value();
+
+  if (!user) {
+    return res.status(404).json({ error: "Usuário não encontrado" });
+  }
+
+  res.json(user.userData);
+});
+
+// Update user data
+server.patch("/users/:id/data", async (req, res) => {
+  const userId = parseInt(req.params.id);
+  const user = db.get("users").find({ id: userId }).value();
+
+  if (!user) {
+    return res.status(404).json({ error: "Usuário não encontrado" });
+  }
+
+  user.userData = { ...user.userData, ...req.body };
+  db.get("users").find({ id: userId }).assign(user).write();
+
+  res.json(user.userData);
+});
+
+// Add notification
+server.post("/users/:id/notifications", async (req, res) => {
+  const userId = parseInt(req.params.id);
+  const user = db.get("users").find({ id: userId }).value();
+
+  if (!user) {
+    return res.status(404).json({ error: "Usuário não encontrado" });
+  }
+
+  const notification = {
+    ...req.body,
+    dateTime: new Date().toISOString(),
+  };
+
+  user.userData.notifications.unshift(notification);
+  db.get("users").find({ id: userId }).assign(user).write();
+
+  res.json(notification);
+});
+
+// Delete notification
+server.delete("/users/:id/notifications/:index", async (req, res) => {
+  const userId = parseInt(req.params.id);
+  const notificationIndex = parseInt(req.params.index);
+  const user = db.get("users").find({ id: userId }).value();
+
+  if (!user) {
+    return res.status(404).json({ error: "Usuário não encontrado" });
+  }
+
+  user.userData.notifications.splice(notificationIndex, 1);
+  db.get("users").find({ id: userId }).assign(user).write();
+
+  res.json({ message: "Notificação removida com sucesso" });
+});
+
+// Register training
+server.post("/users/:id/trainings", async (req, res) => {
+  const userId = parseInt(req.params.id);
+  const user = db.get("users").find({ id: userId }).value();
+
+  if (!user) {
+    return res.status(404).json({ error: "Usuário não encontrado" });
+  }
+
+  const training = {
+    ...req.body,
+    date: new Date().toISOString(),
+  };
+
+  user.userData.registered_trainings.push(training);
+  db.get("users").find({ id: userId }).assign(user).write();
+
+  res.json(training);
 });
 
 server.use(router);
