@@ -245,9 +245,27 @@
       }
     },
     {
+      "id": 4,
       "email": "user@examplee.com",
       "password": "userpassword",
-      "id": 4
+      "userData": {
+        "default_trainings": {
+          "ids": []
+        },
+        "edited_trainings": [],
+        "notifications": [],
+        "profile": {
+          "metadados": {
+            "termos": false,
+            "data_cadastro": "2025-06-05T18:41:42.727Z",
+            "xp": 0,
+            "conquistas": []
+          },
+          "objetivos": {},
+          "pessoal": {}
+        },
+        "registered_trainings": []
+      }
     }
   ]
 }

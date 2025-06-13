@@ -86,7 +86,64 @@ server.post("/register", async (req, res) => {
           objetivos: {},
           pessoal: {},
         },
-        registered_trainings: [],
+        edited_trainings: [
+          {
+            id: 1,
+            name: "Treino de inferiores",
+            category: "Pernas",
+            type: "Ficha iniciante",
+            days: [
+              {
+                id: 1,
+                xp: 100,
+                name: "Dia 1 - Gluteos e Posterior de Coxa",
+                day: [
+                  { exercise: "Supino reto", series: 4, repetitions: "8-12" },
+                  { exercise: "Supino inclinado", series: 4, repetitions: "8-12" },
+                  { exercise: "Supino transversal", series: 4, repetitions: "8-12" }
+                ]
+              },
+              {
+                id: 2,
+                xp: 150,
+                name: "Dia 2 - Quadriceps e Panturrilha",
+                day: [
+                  { exercise: "Supino reto", series: 4, repetitions: "8-12" },
+                  { exercise: "Supino inclinado", series: 4, repetitions: "8-12" },
+                  { exercise: "Supino transversal", series: 4, repetitions: "8-12" }
+                ]
+              }
+            ]
+          },
+          {
+            id: 2,
+            name: "Treino de superiores",
+            category: "Superiores",
+            type: "Ficha intermediária",
+            days: [
+              {
+                id: 1,
+                xp: 50,
+                name: "Dia 1 - Costas",
+                day: [
+                  { exercise: "Supino reto", series: 4, repetitions: "8-12" },
+                  { exercise: "Supino inclinado", series: 4, repetitions: "8-12" },
+                  { exercise: "Supino transversal", series: 4, repetitions: "8-12" }
+                ]
+              },
+              {
+                id: 2,
+                xp: 75,
+                name: "Dia 2 - Ombro",
+                day: [
+                  { exercise: "Supino reto", series: 4, repetitions: "8-12" },
+                  { exercise: "Supino inclinado", series: 4, repetitions: "8-12" },
+                  { exercise: "Supino transversal", series: 4, repetitions: "8-12" }
+                ]
+              }
+            ]
+          }
+        ],
       },
     };
 
