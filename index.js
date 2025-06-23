@@ -287,6 +287,23 @@ server.post("/users/:id/trainings", async (req, res) => {
   res.json(training);
 });
 
+server.get("/ranking", async (req, res) => {
+  const db = router.db;
+  const users = db.get("users").value();
+
+  // Monta o ranking com nome/email e XP
+  const ranking = users.map(user => ({
+    id: user.id,
+    email: user.email,
+    xp: user.userData?.profile?.xp || user.userData?.profile?.metadados?.xp || 0
+  }));
+
+  // Ordena do maior para o menor XP
+  ranking.sort((a, b) => b.xp - a.xp);
+
+  res.json(ranking);
+});
+
 server.use(router);
 
 server.listen(port, () => {
