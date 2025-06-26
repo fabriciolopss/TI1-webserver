@@ -304,6 +304,195 @@ server.get("/ranking", async (req, res) => {
   res.json(ranking);
 });
 
+// Get all users (for social feed)
+server.get("/users", async (req, res) => {
+  const db = router.db;
+  const users = db.get("users").value();
+
+  // Retorna apenas dados necessários para o feed social
+  const socialUsers = users.map(user => ({
+    id: user.id,
+    email: user.email,
+    userData: user.userData
+  }));
+
+  res.json(socialUsers);
+});
+
+// Get social feed
+server.get("/social-feed", async (req, res) => {
+  const db = router.db;
+  const users = db.get("users").value();
+  
+  const page = parseInt(req.query.page) || 0;
+  const limit = parseInt(req.query.limit) || 10;
+  const sortBy = req.query.sortBy || 'recent';
+  const category = req.query.category || 'all';
+
+  // Coleta todos os treinos registrados de todos os usuários
+  let allTrainings = [];
+  
+  users.forEach(user => {
+    if (user.userData?.registered_trainings) {
+      user.userData.registered_trainings.forEach(training => {
+        // Encontrar o treino correspondente
+        const trainingData = user.userData.edited_trainings?.find(t => t.id == training.training_id);
+        if (trainingData) {
+          const day = trainingData.days?.find(d => d.id == training.day_index);
+          if (day) {
+            allTrainings.push({
+              id: `${user.id}_${training.date}_${training.training_id}_${training.day_index}`,
+              userId: user.id,
+              userData: user.userData,
+              training: trainingData,
+              day: day,
+              registeredTraining: training,
+              trainingDate: new Date(training.date)
+            });
+          }
+        }
+      });
+    }
+  });
+
+  // Aplicar filtros
+  if (category !== 'all') {
+    allTrainings = allTrainings.filter(item => 
+      item.training.category === category
+    );
+  }
+
+  // Aplicar ordenação
+  switch (sortBy) {
+    case 'recent':
+      allTrainings.sort((a, b) => b.trainingDate - a.trainingDate);
+      break;
+    case 'xp':
+      allTrainings.sort((a, b) => b.registeredTraining.xpGain - a.registeredTraining.xpGain);
+      break;
+    case 'popular':
+      // Ordenar por XP do usuário (usuários com mais XP aparecem primeiro)
+      allTrainings.sort((a, b) => {
+        const aXp = a.userData?.profile?.xp || a.userData?.profile?.metadados?.xp || 0;
+        const bXp = b.userData?.profile?.xp || b.userData?.profile?.metadados?.xp || 0;
+        return bXp - aXp;
+      });
+      break;
+  }
+
+  // Aplicar paginação
+  const startIndex = page * limit;
+  const endIndex = startIndex + limit;
+  const paginatedTrainings = allTrainings.slice(startIndex, endIndex);
+
+  // Processar dados para o formato do feed
+  const posts = paginatedTrainings.map(item => {
+    const duration = item.registeredTraining.duration;
+    const durationText = formatDuration(duration);
+    const timeAgo = getTimeAgo(item.trainingDate);
+    const message = generateMessage(item.training.category, item.day.name);
+    
+    // Verificar conquistas recentes
+    const recentAchievements = item.userData.profile?.metadados?.conquistas?.filter(c => 
+      c.conquistada && !c.resgatada
+    ) || [];
+
+    return {
+      id: item.id,
+      user: {
+        id: item.userId,
+        name: item.userData.profile?.pessoal?.nome || 'Usuário',
+        level: calculateLevel(item.userData.profile?.xp || item.userData.profile?.metadados?.xp || 0),
+        avatar: (item.userData.profile?.pessoal?.nome || 'U').charAt(0).toUpperCase()
+      },
+      workout: {
+        title: item.training.name,
+        category: item.training.category,
+        day: item.day.name,
+        duration: durationText,
+        xp: item.registeredTraining.xpGain,
+        exercises: item.day.day || []
+      },
+      timeAgo,
+      message,
+      achievement: recentAchievements.length > 0 ? {
+        name: recentAchievements[0].nome,
+        icon: 'trophy',
+        new: true
+      } : null,
+      trainingDate: item.registeredTraining.date
+    };
+  });
+
+  res.json({
+    posts,
+    total: allTrainings.length,
+    page,
+    limit,
+    hasMore: endIndex < allTrainings.length
+  });
+});
+
+// Funções auxiliares para o feed social
+function formatDuration(duration) {
+  const hours = duration.hours || 0;
+  const minutes = duration.minutes || 0;
+  
+  if (hours > 0) {
+    return `${hours}h ${minutes}min`;
+  }
+  return `${minutes} minutos`;
+}
+
+function getTimeAgo(date) {
+  const now = new Date();
+  const diffMs = now - date;
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHours = Math.floor(diffMin / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffSec < 60) return `${diffSec} segundo${diffSec > 1 ? 's' : ''} atrás`;
+  if (diffMin < 60) return `${diffMin} minuto${diffMin > 1 ? 's' : ''} atrás`;
+  if (diffHours < 24) return `${diffHours} hora${diffHours > 1 ? 's' : ''} atrás`;
+  if (diffDays < 7) return `${diffDays} dia${diffDays > 1 ? 's' : ''} atrás`;
+  
+  const diffWeeks = Math.floor(diffDays / 7);
+  return `${diffWeeks} semana${diffWeeks > 1 ? 's' : ''} atrás`;
+}
+
+function calculateLevel(xp) {
+  return Math.floor(xp / 100) + 1;
+}
+
+function generateMessage(category, dayName) {
+  const messages = {
+    'Cardio': [
+      `Treino de cardio incrível! 🔥 ${dayName} concluído com sucesso! #Cardio #Fitness`,
+      `Mais um dia de cardio! 💪 ${dayName} - queimando calorias e construindo resistência! #Motivado`,
+      `Cardio intenso hoje! 🏃‍♂️ ${dayName} - cada gota de suor vale a pena! #Resultados`
+    ],
+    'Pernas': [
+      `Treino de pernas épico! 🦵 ${dayName} - sentindo cada músculo trabalhando! #Pernas #Força`,
+      `Inferiores no foco! 💪 ${dayName} - construindo pernas de aço! #Treino #Evolução`,
+      `Pernas de ferro! 🏋️‍♂️ ${dayName} - progresso constante é a chave! #Motivado`
+    ],
+    'Superiores': [
+      `Superiores no ponto! 💪 ${dayName} - força e definição em construção! #Superiores #Fitness`,
+      `Treino de superiores incrível! 🏋️‍♂️ ${dayName} - cada repetição conta! #Força #Progresso`,
+      `Superiores concluídos! 🔥 ${dayName} - evolução constante! #Treino #Resultados`
+    ],
+    'Funcional': [
+      `Funcional intenso! 🎯 ${dayName} - trabalhando todo o corpo de forma integrada! #Funcional #Saúde`,
+      `Circuito funcional incrível! 💪 ${dayName} - equilíbrio, força e resistência! #Funcional #Completo`,
+      `Funcional no foco! 🔥 ${dayName} - movimento funcional é vida! #Funcional #Fitness`
+    ]
+  };
+
+  const categoryMessages = messages[category] || messages['Cardio'];
+  return categoryMessages[Math.floor(Math.random() * categoryMessages.length)];
+}
+
 server.use(router);
 
 server.listen(port, () => {
