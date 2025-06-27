@@ -370,25 +370,24 @@ server.get("/social-feed", async (req, res) => {
   const endIndex = page * limit;
 
   users.forEach((user) => {
-    user.userData.registered_trainings.forEach((training) => {
+    (user.userData?.registered_trainings || []).forEach((training) => {
       const dayName = new Date(training.date).toLocaleDateString("pt-BR", {
         weekday: "long",
       });
 
+      const editedTraining =
+        user.userData?.edited_trainings?.[training.training_id - 1];
+      if (!editedTraining) return;
+
+      const trainingDay = editedTraining.days?.[training.day_index];
+      if (!trainingDay) return;
+
       postInfos.push({
         userId: user.id,
         name: user.userData.profile?.pessoal.nome || user.email,
-        training:
-          user.userData?.edited_trainings[training.training_id - 1].days[
-            training.day_index
-          ],
-        category:
-          user.userData?.edited_trainings[training.training_id - 1].category ||
-          "Cardio",
-        message: generateMessage(
-          user.userData?.edited_trainings[training.training_id - 1].category,
-          dayName
-        ),
+        training: trainingDay,
+        category: editedTraining.category || "Cardio",
+        message: generateMessage(editedTraining.category || "Cardio", dayName),
         date: new Date(training.date).toISOString(),
         duration: formatDuration(
           training.duration || { hours: 0, minutes: 30 }
