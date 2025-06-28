@@ -247,7 +247,20 @@ server.get("/users/:id/data", async (req, res) => {
     return res.status(404).json({ error: "Usuário não encontrado" });
   }
 
-  res.json(user.userData);
+  const allUsers = db.get("users").value();
+  const totalTrainings = allUsers.reduce((sum, u) => {
+    const trainings = u.userData?.registered_trainings || [];
+    return sum + trainings.length;
+  }, 0);
+  const userCount = allUsers.length;
+
+  const averageTrainingsPerUser =
+    userCount > 0 ? parseFloat((totalTrainings / userCount).toFixed(2)) : 0;
+
+  res.json({
+    ...user.userData,
+    media_treinos_por_usuario: averageTrainingsPerUser,
+  });
 });
 
 // Update user data
