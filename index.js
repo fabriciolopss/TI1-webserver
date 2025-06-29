@@ -56,6 +56,33 @@ function generateToken(user) {
   );
 }
 
+// Função para verificar token JWT
+function verifyToken(token) {
+  try {
+    return jwt.verify(token, JWT_SECRET);
+  } catch (error) {
+    return null;
+  }
+}
+
+// Middleware para verificar autenticação
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1]; // Bearer TOKEN
+
+  if (!token) {
+    return res.status(401).json({ error: "Token de acesso necessário" });
+  }
+
+  const decoded = verifyToken(token);
+  if (!decoded) {
+    return res.status(403).json({ error: "Token inválido ou expirado" });
+  }
+
+  req.user = decoded;
+  next();
+}
+
 // Rota de registro de usuário
 server.post("/register", async (req, res) => {
   const { email, password } = req.body;
@@ -235,11 +262,15 @@ server.post("/login", async (req, res) => {
   }
 });
 
-// New endpoints to add to the webserver
-
-// Get user data
-server.get("/users/:id/data", async (req, res) => {
+// Get user data (protegida)
+server.get("/users/:id/data", authenticateToken, async (req, res) => {
   const userId = parseInt(req.params.id);
+
+  // Verifica se o usuário está tentando acessar seus próprios dados
+  if (req.user.userId !== userId) {
+    return res.status(403).json({ error: "Acesso negado" });
+  }
+
   const db = router.db;
   const user = db.get("users").find({ id: userId }).value();
 
@@ -247,25 +278,18 @@ server.get("/users/:id/data", async (req, res) => {
     return res.status(404).json({ error: "Usuário não encontrado" });
   }
 
-  const allUsers = db.get("users").value();
-  const totalTrainings = allUsers.reduce((sum, u) => {
-    const trainings = u.userData?.registered_trainings || [];
-    return sum + trainings.length;
-  }, 0);
-  const userCount = allUsers.length;
-
-  const averageTrainingsPerUser =
-    userCount > 0 ? parseFloat((totalTrainings / userCount).toFixed(2)) : 0;
-
-  res.json({
-    ...user.userData,
-    media_treinos_por_usuario: averageTrainingsPerUser,
-  });
+  res.json(user.userData);
 });
 
-// Update user data
-server.patch("/users/:id/data", async (req, res) => {
+// Update user data (protegida)
+server.patch("/users/:id/data", authenticateToken, async (req, res) => {
   const userId = parseInt(req.params.id);
+
+  // Verifica se o usuário está tentando acessar seus próprios dados
+  if (req.user.userId !== userId) {
+    return res.status(403).json({ error: "Acesso negado" });
+  }
+
   const db = router.db;
   const user = db.get("users").find({ id: userId }).value();
 
@@ -279,9 +303,46 @@ server.patch("/users/:id/data", async (req, res) => {
   res.json(user.userData);
 });
 
-// Add notification
-server.post("/users/:id/notifications", async (req, res) => {
+server.post("/test-auth", (req, res) => {
+  // Rota para testar se o token é válido
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1]; // Bearer TOKEN
+
+  if (!token) {
+    return res.status(401).json({
+      valid: false,
+      error: "Token de acesso necessário",
+    });
+  }
+
+  const decoded = verifyToken(token);
+  if (!decoded) {
+    return res.status(403).json({
+      valid: false,
+      error: "Token inválido ou expirado",
+    });
+  }
+
+  // Token é válido, retorna informações do usuário
+  res.json({
+    valid: true,
+    user: {
+      userId: decoded.userId,
+      email: decoded.email,
+    },
+    message: "Token válido",
+  });
+});
+
+// Add notification (protegida)
+server.post("/users/:id/notifications", authenticateToken, async (req, res) => {
   const userId = parseInt(req.params.id);
+
+  // Verifica se o usuário está tentando acessar seus próprios dados
+  if (req.user.userId !== userId) {
+    return res.status(403).json({ error: "Acesso negado" });
+  }
+
   const db = router.db;
   const user = db.get("users").find({ id: userId }).value();
 
@@ -300,26 +361,42 @@ server.post("/users/:id/notifications", async (req, res) => {
   res.json(notification);
 });
 
-// Delete notification
-server.delete("/users/:id/notifications/:index", async (req, res) => {
-  const userId = parseInt(req.params.id);
-  const notificationIndex = parseInt(req.params.index);
-  const db = router.db;
-  const user = db.get("users").find({ id: userId }).value();
+// Delete notification (protegida)
+server.delete(
+  "/users/:id/notifications/:index",
+  authenticateToken,
+  async (req, res) => {
+    const userId = parseInt(req.params.id);
 
-  if (!user) {
-    return res.status(404).json({ error: "Usuário não encontrado" });
+    // Verifica se o usuário está tentando acessar seus próprios dados
+    if (req.user.userId !== userId) {
+      return res.status(403).json({ error: "Acesso negado" });
+    }
+
+    const notificationIndex = parseInt(req.params.index);
+    const db = router.db;
+    const user = db.get("users").find({ id: userId }).value();
+
+    if (!user) {
+      return res.status(404).json({ error: "Usuário não encontrado" });
+    }
+
+    user.userData.notifications.splice(notificationIndex, 1);
+    db.get("users").find({ id: userId }).assign(user).write();
+
+    res.json({ message: "Notificação removida com sucesso" });
+  }
+);
+
+// Register training (protegida)
+server.post("/users/:id/trainings", authenticateToken, async (req, res) => {
+  const userId = parseInt(req.params.id);
+
+  // Verifica se o usuário está tentando acessar seus próprios dados
+  if (req.user.userId !== userId) {
+    return res.status(403).json({ error: "Acesso negado" });
   }
 
-  user.userData.notifications.splice(notificationIndex, 1);
-  db.get("users").find({ id: userId }).assign(user).write();
-
-  res.json({ message: "Notificação removida com sucesso" });
-});
-
-// Register training
-server.post("/users/:id/trainings", async (req, res) => {
-  const userId = parseInt(req.params.id);
   const db = router.db;
   const user = db.get("users").find({ id: userId }).value();
 
